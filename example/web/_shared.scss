@@ -1,1 +1,11 @@
 $my-color: red;
+
+div::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background-image: url(read-string('package:sass_builder_example/dart.svg', 'image/svg+xml'));
+  background-size: contain;
+  background-repeat: no-repeat;
+}

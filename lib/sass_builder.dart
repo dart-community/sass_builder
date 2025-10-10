@@ -6,6 +6,7 @@ import 'package:sass/sass.dart' as sass;
 
 import 'src/build_importer.dart';
 import 'src/logger.dart';
+import 'src/read_callable.dart';
 
 const outputStyleKey = 'outputStyle';
 
@@ -72,6 +73,9 @@ class SassBuilder implements Builder {
       url: inputId.uri,
       sourceMap: _generateSourceMaps,
       logger: LoggingAdapter(log),
+      functions: [
+        readAssetCallable(buildStep),
+      ],
       silenceDeprecations: _silenceDeprecations,
       fatalDeprecations: _fatalDeprecations,
       futureDeprecations: _futureDeprecations,

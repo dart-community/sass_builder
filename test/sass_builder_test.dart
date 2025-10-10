@@ -358,6 +358,37 @@ void main() {
     );
   });
 
+  test('reading assets', () async {
+    await testBuilder(
+      sassBuilder(BuilderOptions({}, isRoot: true)),
+      {
+        'a|web/styles.scss': '''
+          .foo {
+            test: read-string('asset:a/web/test.txt')
+          }
+        ''',
+        'a|web/test.txt': 'other content'
+      },
+      outputs: {'a|web/styles.css': decodedMatches(contains('other content'))},
+    );
+
+    await testBuilder(
+      sassBuilder(BuilderOptions({}, isRoot: true)),
+      {
+        'a|web/styles.scss': '''
+          .foo {
+            test: read-string('asset:a/web/test.txt', 'application/json')
+          }
+        ''',
+        'a|web/test.txt': 'other content'
+      },
+      outputs: {
+        'a|web/styles.css': decodedMatches(
+            contains('data:application/json;charset=utf-8,other%20content'))
+      },
+    );
+  });
+
   test('ignored deprecations', () async {
     const inputs = {
       'a|web/styles.scss': '''

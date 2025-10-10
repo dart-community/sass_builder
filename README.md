@@ -65,6 +65,26 @@ targets:
 
 ```
 
+## Including files
+
+This package provides the builtin `read-string` function loading assets from
+the build system. It takes an asset URL as a first parameter and an optional
+mime type as a second.
+
+When no type is given, it returns the contents of the given asset as a string.
+With a mime type, it returns a `data:` URL:
+
+```scss
+div::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background-image: url(read-string('asset:my_pkg/web/dart.svg', 'image/svg+xml'));
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+```
 
 ## Sass dependencies
 

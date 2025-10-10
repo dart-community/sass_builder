@@ -4,6 +4,7 @@
 - Add the `silenceDeprecations`, `futureDeprecations` and `fatalDeprecations`
   builder options controlling how Sass will react to the use of deprecated
   features.
+- Add the `read-string` builtin function reading asset ids as strings.
 
 ## 2.3.1
 
