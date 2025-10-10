@@ -5,6 +5,7 @@ import 'package:path/path.dart' as p;
 import 'package:sass/sass.dart' as sass;
 
 import 'src/build_importer.dart';
+import 'src/logger.dart';
 
 const outputStyleKey = 'outputStyle';
 
@@ -54,6 +55,7 @@ class SassBuilder implements Builder {
       style: _getValidOutputStyle(),
       url: inputId.uri,
       sourceMap: _generateSourceMaps,
+      logger: LoggingAdapter(log),
     );
 
     var cssOutput = compileResult.css;

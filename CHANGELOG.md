@@ -1,6 +1,10 @@
+## 2.4.0-dev
+
+- Use logger from `package:build` to emit Sass logs.
+
 ## 2.3.1
 
-- Support version 4 of `pacakge:build`.
+- Support version 4 of `package:build`.
 
 ## 2.3.0
 

@@ -334,6 +334,29 @@ void main() {
           'be used.')),
     );
   });
+
+  test('uses build logger to forward sass errors', () async {
+    final messages = <String>[];
+    await testBuilder(
+      sassBuilder(BuilderOptions({}, isRoot: true)),
+      {
+        'a|web/styles.scss': '''
+          @use 'package:unknown/stylesheet';
+        ''',
+      },
+      outputs: {},
+      onLog: (log) => messages.add(log.message),
+    );
+
+    expect(
+      messages,
+      anyElement(allOf(
+        contains('SassBuilder on web/styles.scss'),
+        contains("Can't find stylesheet to import."),
+        contains("@use 'package:unknown/stylesheet';"),
+      )),
+    );
+  });
 }
 
 extension on ReaderWriterTesting {
