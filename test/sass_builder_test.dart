@@ -357,6 +357,64 @@ void main() {
       )),
     );
   });
+
+  test('ignored deprecations', () async {
+    const inputs = {
+      'a|web/styles.scss': '''
+        @import '_a';
+      ''',
+      'a|web/_a.scss': '''
+        .a { color: red; }
+      ''',
+    };
+    const outputs = {
+      'a|web/styles.css': anything,
+    };
+
+    final messages = <String>[];
+    await testBuilder(
+      sassBuilder(BuilderOptions({}, isRoot: true)),
+      inputs,
+      outputs: outputs,
+      onLog: (log) => messages.add(log.message),
+    );
+    expect(messages, anyElement(contains('Sass @import rules are deprecated')));
+
+    messages.clear();
+    await testBuilder(
+      sassBuilder(BuilderOptions({
+        'silenceDeprecations': ['import']
+      }, isRoot: true)),
+      inputs,
+      outputs: outputs,
+      onLog: (log) => messages.add(log.message),
+    );
+    expect(messages,
+        isNot(anyElement(contains('Sass @import rules are deprecated'))));
+  });
+
+  test('failed deprecations', () async {
+    await testBuilder(
+      sassBuilder(BuilderOptions({
+        'fatalDeprecations': ['strict-unary']
+      }, isRoot: true)),
+      {
+        'a|web/foo.scss': r'''
+        $size: 10px;
+        .a { margin: 15px -$size }
+      '''
+      },
+      outputs: {},
+    );
+  });
+
+  test('unknown deprecations', () async {
+    expect(
+        () => sassBuilder(BuilderOptions({
+              'futureDeprecations': ['bogus-deprecation']
+            }, isRoot: true)),
+        throwsArgumentError);
+  });
 }
 
 extension on ReaderWriterTesting {

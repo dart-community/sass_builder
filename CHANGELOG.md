@@ -1,6 +1,9 @@
 ## 2.4.0-dev
 
 - Use logger from `package:build` to emit Sass logs.
+- Add the `silenceDeprecations`, `futureDeprecations` and `fatalDeprecations`
+  builder options controlling how Sass will react to the use of deprecated
+  features.
 
 ## 2.3.1
 

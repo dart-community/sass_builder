@@ -7,24 +7,76 @@ the [Dart implementation][2] of [Sass][3].
 [2]: https://github.com/sass/dart-sass
 [3]: https://sass-lang.com/dart-sass/
 
-## Usage
+## Installation
 
-1\. Add `build_runner` and `sass_builder` as dev dependencies
-    in your `pubspec.yaml` file:
+This package integrates into Dart's build system, so it works after being added
+as a dev-dependency:
 
 ```shell
 dart pub add dev:build_runner dev:sass_builder
 ```
 
-If you want to use any packages that provide source sass files,
-add them as normal pub dependencies.
+Next, create say a `web/main.scss` containing the following code:
+
+```scss
+.a {
+  color: blue;
+}
+```
+
+Run `dart run build_runner build` to make this package emit `web/main.css`.
+
+## Usage
+
+`package:sass_builder` mostly works how you'd expect Sass to behave in other
+build systems:
+
+- Each `.scss` and `.sass` file gets compiled to a `.css` file.
+- For development builds, generated CSS is expanded. For `--release` builds,
+  it's emitted in a compressed form.
+- The builder will not run on input files starting with an underscore. These
+  files can still be `@use`-imported into other Sass files though.
+
+## Options
+
+To configure options for the builder see the `build_config`
+[README](https://github.com/dart-lang/build/blob/master/build_config/README.md).
+
+* `outputStyle`: Supports `expanded` or `compressed`.
+  Defaults to `expanded` in dev mode, and `compressed` in release mode.
+* `sourceMaps`: Whether to emit source maps for compiled CSS.
+  Defaults to `true` in development mode and to `false` in release mode.
+* `silenceDeprecations`, `futureDeprecations` and `fatalDeprecations` control
+  how Sass handles deprecation warnings.
+
+Example:
+
+```yaml
+targets:
+  $default:
+    builders:
+      sass_builder:
+        options:
+          # Emit compressed outputs in both dev and release mode.
+          outputStyle: compressed
+          silenceDeprecations:
+            # Don't warn about @import rules
+            - import
+
+```
+
+
+## Sass dependencies
+
+If you want to use any packages that provide source sass files, add them as
+normal pub dependencies.
 For example, if you want to use styles from `package:bootstrap_sass`:
 
 ```shell
 dart pub add bootstrap_sass
 ```
 
-2\. Create `web/main.scss` containing the following code:
+Then, adapt `web/main.scss` to contain:
 
 ```scss
 @use "sub";
@@ -39,7 +91,7 @@ dart pub add bootstrap_sass
 }
 ```
 
-3\. Create `web/_sub.scss` containing the following code:
+Create `web/_sub.scss` containing the following code:
 
 ```scss
 .b {
@@ -47,7 +99,7 @@ dart pub add bootstrap_sass
 }
 ```
 
-4\. Create `web/index.html` containing the following code:
+Create `web/index.html` containing the following code:
 
 ```html
 <!DOCTYPE html>
@@ -65,8 +117,8 @@ dart pub add bootstrap_sass
 </html>
 ```
 
-5\. Run `dart run build_runner serve` and then go to `localhost:8080` with a browser
- and check if the file `web/main.css` was generated containing:
+Run `dart run build_runner serve` and then go to `localhost:8080` with a browser
+and check if the file `web/main.css` was generated containing:
 
 ```css
 .b {
@@ -80,25 +132,4 @@ dart pub add bootstrap_sass
 .c {
   color: #373a3c;
 }
-```
-
-### Builder Options
-
-To configure options for the builder see the `build_config`
-[README](https://github.com/dart-lang/build/blob/master/build_config/README.md).
-
-* `outputStyle`: Supports `expanded` or `compressed`.
-  Defaults to `expanded` in dev mode, and `compressed` in release mode.
-* `sourceMaps`: Whether to emit source maps for compiled CSS.
-  Defaults to `true` in development mode and to `false` in release mode.
-
-Example that compresses output in dev mode:
-
-```yaml
-targets:
-  $default:
-    builders:
-      sass_builder:
-        options:
-          outputStyle: compressed
 ```

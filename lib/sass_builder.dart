@@ -9,10 +9,17 @@ import 'src/logger.dart';
 
 const outputStyleKey = 'outputStyle';
 
-Builder sassBuilder(BuilderOptions options) => SassBuilder(
-      outputStyle: options.config[outputStyleKey] as String?,
-      generateSourceMaps: options.config['sourceMaps'] == true,
-    );
+Builder sassBuilder(BuilderOptions options) {
+  final config = options.config;
+
+  return SassBuilder(
+    outputStyle: config[outputStyleKey] as String?,
+    generateSourceMaps: config['sourceMaps'] == true,
+    silenceDeprecations: config.readDeprecations('silenceDeprecations'),
+    futureDeprecations: config.readDeprecations('futureDeprecations'),
+    fatalDeprecations: config.readDeprecations('fatalDeprecations'),
+  );
+}
 
 PostProcessBuilder sassSourceCleanup(BuilderOptions options) =>
     FileDeletingBuilder(const ['.scss', '.sass'],
@@ -27,14 +34,23 @@ class SassBuilder implements Builder {
   final String _outputExtension;
   final String _outputStyle;
   final bool _generateSourceMaps;
+  final Set<sass.Deprecation>? _silenceDeprecations;
+  final Set<sass.Deprecation>? _fatalDeprecations;
+  final Set<sass.Deprecation>? _futureDeprecations;
 
   SassBuilder({
     String outputExtension = '.css',
     String? outputStyle,
     bool generateSourceMaps = false,
+    Set<sass.Deprecation>? silenceDeprecations,
+    Set<sass.Deprecation>? fatalDeprecations,
+    Set<sass.Deprecation>? futureDeprecations,
   })  : _outputExtension = outputExtension,
         _outputStyle = outputStyle ?? _defaultOutputStyle.name,
-        _generateSourceMaps = generateSourceMaps;
+        _generateSourceMaps = generateSourceMaps,
+        _silenceDeprecations = silenceDeprecations,
+        _fatalDeprecations = fatalDeprecations,
+        _futureDeprecations = futureDeprecations;
 
   @override
   Future<void> build(BuildStep buildStep) async {
@@ -56,6 +72,9 @@ class SassBuilder implements Builder {
       url: inputId.uri,
       sourceMap: _generateSourceMaps,
       logger: LoggingAdapter(log),
+      silenceDeprecations: _silenceDeprecations,
+      fatalDeprecations: _fatalDeprecations,
+      futureDeprecations: _futureDeprecations,
     );
 
     var cssOutput = compileResult.css;
@@ -129,4 +148,28 @@ class SassBuilder implements Builder {
         '.scss': [_outputExtension, '.css.map'],
         '.sass': [_outputExtension, '.css.map'],
       };
+}
+
+extension on Map<String, Object?> {
+  Set<sass.Deprecation>? readDeprecations(String key) {
+    if (this[key] case final deprecations?) {
+      if (deprecations is! List) {
+        throw ArgumentError.value(deprecations, key,
+            'Must be a list of deprecation names to ignore.');
+      }
+
+      return deprecations.map((e) {
+        return _deprecationByName[e] ??
+            (throw ArgumentError.value(
+                e, key, 'Unknown deprecation option: $e'));
+      }).toSet();
+    } else {
+      return null;
+    }
+  }
+
+  static final _deprecationByName = {
+    for (final deprecation in sass.Deprecation.values)
+      deprecation.id: deprecation,
+  };
 }
