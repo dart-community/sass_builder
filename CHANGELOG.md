@@ -1,3 +1,7 @@
+## 2.4.1
+
+- Support versions 5.x of `package:build`.
+
 ## 2.4.0+1
 
 - Move package to `dartcommunity.dev` publisher, no code changes.

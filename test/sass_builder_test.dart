@@ -351,7 +351,7 @@ void main() {
     expect(
       messages,
       anyElement(allOf(
-        contains('SassBuilder on web/styles.scss'),
+        contains('web/styles.scss'),
         contains("Can't find stylesheet to import."),
         contains("@use 'package:unknown/stylesheet';"),
       )),
